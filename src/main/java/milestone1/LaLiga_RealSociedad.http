@@ -1,0 +1,5 @@
+### GET request to example server
+
+GET https://api.football-data.org/v4/teams/92
+Accept: application/json
+X-Auth-Token: 1031d6503b434d379d0e5745bd360246
