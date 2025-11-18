@@ -1,6 +1,5 @@
-import { fetchJSON } from "./loaders.js";
-import { folder, leftArrow, stringToHTML } from "./fragments.js";
-import { setupRows } from "./rows.js"
+import { folder, leftArrow, fetchJSON } from "./fragments.js";
+import { getPlayer } from "./rows.js";
 
 function differenceInDays(date1) {
     // YOUR CODE HERE
@@ -18,15 +17,15 @@ function differenceInDays(date1) {
 let difference_In_Days = differenceInDays(new Date("01-10-2025"));
 
 window.onload = function () {
-    document.getElementById("gamenumber").innerText = difference_In_Days.toString();
-    document.getElementById("back-icon").innerHTML = folder + leftArrow;
+  document.getElementById("gamenumber").innerText = difference_In_Days.toString();
+  document.getElementById("back-icon").innerHTML = folder + leftArrow;
 };
 
 let game = {
-    guesses: [],
-    solution: {},
-    players: [],
-    leagues: []
+  guesses: [],
+  solution: { },
+  players: [],
+  leagues: []
 };
 
 function getSolution(players, solutionArray, difference_In_Days) {
@@ -45,24 +44,28 @@ function getSolution(players, solutionArray, difference_In_Days) {
 }
 
 Promise.all([fetchJSON("fullplayers25"), fetchJSON("solution25")]).then(
-    (values) => {
-        let solution;
-        [game.players, solution] = values;
-        game.solution = getSolution(game.players, solution, difference_In_Days);
-        console.log(game.solution);
-        document.getElementById("mistery").src = `https://playfootball.games/media/players/${game.solution.id % 32}/${game.solution.id}.png`;
-    });
+  (values) => {
+    let solution;
+    [game.players, solution] = values;
+    game.solution = getSolution(game.players, solution, difference_In_Days);
+    console.log(game.solution);
+    document.getElementById("mistery").src = `https://playfootball.games/media/players/${game.solution.id % 32}/${game.solution.id}.png`;
+  });
 
 // YOUR CODE HERE
 let addRow = setupRows(game);
 // get myInput object...
-document.getElementById("myInput").addEventListener("keydown", function(e) {
+document.getElementById("myInput").addEventListener("keydown", function(event) {
     // when the user types a number an press the Enter key:
-    if (e.key === "Enter") {
-        let JokalariarenID = parseInt(e.target.value);
+    if (event.key === "Enter") {
+        let JokalariarenID = parseInt(event.target.value);
 
-        if (!isNaN(JokalariarenID)) { //isNaN balioa ez da aprseatu
+        if (!isNaN(JokalariarenID)) { //isNaN balioa ez da parseatu
             addRow(JokalariarenID);
+            let jokalaria = getPlayer(JokalariarenID);
+            console.log(jokalaria);
+        } else{
+            console.log("Zenbakia behar da!");
         }
     }
-})
+});

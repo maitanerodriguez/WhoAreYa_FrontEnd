@@ -7,7 +7,7 @@ const delay = 350;
 const attribs = ['nationality', 'leagueId', 'teamId', 'position', 'birthdate']
 
 
-let setupRows = function (game) {
+export let setupRows = function (game) {
 
     function leagueToFlag(leagueId) {
         // YOUR CODE HERE
@@ -30,7 +30,7 @@ let setupRows = function (game) {
         let adina = gaur.getFullYear() - urtebetetzea.getFullYear();
 
         let hilabeteak = gaur.getMonth() - urtebetetzea.getMonth();
-        let egunak = gaur.getDay() - urtebetetzea.getDay();
+        let egunak = gaur.getDate() - urtebetetzea.getDate();
 
         if (hilabeteak < 0 || (hilabeteak === 0 && egunak === 0) ) {
             adina--;
@@ -97,9 +97,9 @@ let setupRows = function (game) {
         playersNode.prepend(stringToHTML(child))
     }
 
-    let getPlayer = function (playerId) {
+    export let getPlayer = function (playerId) {
         // YOUR CODE HERE
-        let jokalaria = game.players.find(j => j.ID === playerId);
+        let jokalaria = game.players.find(j => j.id === playerId);
 
         if (!jokalaria) {
             console.log("Ez da jokalaririk aurkitu zehaztutako ID-arekin!");
@@ -110,7 +110,7 @@ let setupRows = function (game) {
         }
     }
 
-    return /* addRow */ function (playerId) {
+    return function addRow(playerId) {
 
         let guess = getPlayer(playerId)
         console.log(guess)
