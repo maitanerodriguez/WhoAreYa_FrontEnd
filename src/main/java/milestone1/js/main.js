@@ -14,7 +14,7 @@ function differenceInDays(date1) {
     return egunak;
 }
 
-let difference_In_Days = differenceInDays(new Date("01-10-2025"));
+let difference_In_Days = differenceInDays(new Date("2025-10-01"));
 
 window.onload = function () {
   document.getElementById("gamenumber").innerText = difference_In_Days.toString();
@@ -32,7 +32,7 @@ function getSolution(players, solutionArray, difference_In_Days) {
     // YOUR CODE HERE
     let index = (difference_In_Days - 1) % solutionArray.length;
     let gaurkoJokalariId = solutionArray[index];
-    let jokalaria = players.find(p => p.id === gaurkoJokalariId);
+    let jokalaria = players.find(p => Number(p.id) === Number(gaurkoJokalariId));
 
     if (!jokalaria) {
         console.log("Ez da jokalaria aurkitu!");
