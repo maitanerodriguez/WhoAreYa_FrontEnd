@@ -1,5 +1,5 @@
 import { folder, leftArrow, fetchJSON } from "./fragments.js";
-import { getPlayer } from "./rows.js";
+import { setupRows, getPlayer } from "./rows.js";
 
 function differenceInDays(date1) {
     // YOUR CODE HERE
@@ -14,7 +14,7 @@ function differenceInDays(date1) {
     return egunak;
 }
 
-let difference_In_Days = differenceInDays(new Date("01-10-2025"));
+let difference_In_Days = differenceInDays(new Date("2025-10-01"));
 
 window.onload = function () {
   document.getElementById("gamenumber").innerText = difference_In_Days.toString();
@@ -32,7 +32,7 @@ function getSolution(players, solutionArray, difference_In_Days) {
     // YOUR CODE HERE
     let index = (difference_In_Days - 1) % solutionArray.length;
     let gaurkoJokalariId = solutionArray[index];
-    let jokalaria = players.find(p => p.id === gaurkoJokalariId);
+    let jokalaria = players.find(p => Number(p.id) === Number(gaurkoJokalariId));
 
     if (!jokalaria) {
         console.log("Ez da jokalaria aurkitu!");
@@ -43,7 +43,7 @@ function getSolution(players, solutionArray, difference_In_Days) {
     }
 }
 
-Promise.all([fetchJSON("fullplayers25"), fetchJSON("solution25")]).then(
+Promise.all([fetchJSON("json/fullplayers25.json"), fetchJSON("json/solution25.json")]).then(
   (values) => {
     let solution;
     [game.players, solution] = values;
@@ -62,7 +62,7 @@ document.getElementById("myInput").addEventListener("keydown", function(event) {
 
         if (!isNaN(JokalariarenID)) { //isNaN balioa ez da parseatu
             addRow(JokalariarenID);
-            let jokalaria = getPlayer(JokalariarenID);
+            let jokalaria = getPlayer(game, JokalariarenID);
             console.log(jokalaria);
         } else{
             console.log("Zenbakia behar da!");
