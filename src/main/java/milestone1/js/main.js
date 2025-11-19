@@ -1,5 +1,4 @@
-import { folder, leftArrow } from "./fragments.js";
-import { fetchJSON } from "./loaders.js";
+import { folder, leftArrow, fetchJSON } from "./fragments.js";
 
 function differenceInDays(date1) {
     // YOUR CODE HERE
@@ -17,15 +16,15 @@ function differenceInDays(date1) {
 let difference_In_Days = differenceInDays(new Date("2025-10-01"));
 
 window.onload = function () {
-  document.getElementById("gamenumber").innerText = difference_In_Days.toString();
-  document.getElementById("back-icon").innerHTML = folder + leftArrow;
+    document.getElementById("gamenumber").innerText = difference_In_Days.toString();
+    document.getElementById("back-icon").innerHTML = folder + leftArrow;
 };
 
 let game = {
-  guesses: [],
-  solution: {},
-  players: [],
-  leagues: []
+    guesses: [],
+    solution: { },
+    players: [],
+    leagues: []
 };
 
 function getSolution(players, solutionArray, difference_In_Days) {
@@ -43,11 +42,11 @@ function getSolution(players, solutionArray, difference_In_Days) {
     }
 }
 
-Promise.all([fetchJSON("fullplayers25"), fetchJSON("solution25")]).then(
-  (values) => {
-    let solution;
-    [game.players, solution] = values;
-    game.solution = getSolution(game.players, solution, difference_In_Days);
-    console.log(game.solution);
-    document.getElementById("mistery").src = `https://playfootball.games/media/players/${game.solution.id % 32}/${game.solution.id}.png`;
-  });
+Promise.all([fetchJSON("json/fullplayers25.json"), fetchJSON("json/solution25.json")]).then(
+    (values) => {
+        let solution;
+        [game.players, solution] = values;
+        game.solution = getSolution(game.players, solution, difference_In_Days);
+        console.log(game.solution);
+        document.getElementById("mistery").src = `https://playfootball.games/media/players/${game.solution.id % 32}/${game.solution.id}.png`;
+    });
