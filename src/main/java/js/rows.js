@@ -1,4 +1,4 @@
-import { folder, leftArrow, stringToHTML } from "./fragments.js";
+import { folder, leftArrow, higher, lower, stringToHTML } from "./fragments.js";
 
 const delay = 350;
 const attribs = ['nationality', 'leagueId', 'teamId', 'position', 'birthdate'];
@@ -10,8 +10,8 @@ export function getPlayer(game, playerId) {
         console.log("Ez da jokalaririk aurkitu zehaztutako ID-arekin!");
         return null;
     }else{
-    console.log("Jokalaria aurkitu da!");
-    return jokalaria;
+        console.log("Jokalaria aurkitu da!");
+        return jokalaria;
     }
 }
 
@@ -58,14 +58,21 @@ export function setupRows(game) {
     }
 
     function setContent(guess) {
+        let age = getAge(guess.birthdate);
+        let ageStatus = check("birthdate", guess.birthdate);
+        let ageIcon =
+            ageStatus === "higher" ? higher :
+                ageStatus === "lower"  ? lower  : "";
+
         return [
             `<img src="https://playfootball.games/media/nations/${guess.nationality.toLowerCase()}.svg" style="width: 60%;">`,
             `<img src="https://playfootball.games/media/competitions/${leagueToFlag(guess.leagueId)}.png" style="width: 60%;">`,
             `<img src="https://cdn.sportmonks.com/images/soccer/teams/${guess.teamId % 32}/${guess.teamId}.png" style="width: 60%;">`,
             `${guess.position}`,
-            `${getAge(guess.birthdate)}`
+            `${age}${ageIcon}`
         ];
     }
+
 
     function showContent(content, guess) {
         let fragments = "";
