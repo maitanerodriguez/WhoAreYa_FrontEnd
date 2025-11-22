@@ -1,4 +1,5 @@
 import { folder, leftArrow, higher, lower, stringToHTML } from "./fragments.js";
+import { initState } from "./stats.js";
 
 const delay = 350;
 const attribs = ['nationality', 'leagueId', 'teamId', 'position', 'birthdate'];
@@ -9,7 +10,7 @@ export function getPlayer(game, playerId) {
     if (!jokalaria) {
         console.log("Ez da jokalaririk aurkitu zehaztutako ID-arekin!");
         return null;
-    }else{
+    } else {
         console.log("Jokalaria aurkitu da!");
         return jokalaria;
     }
@@ -17,11 +18,16 @@ export function getPlayer(game, playerId) {
 
 export function setupRows(game) {
 
+    // ⭐ M4: initState gehitua
+    let [state, updateState] = initState('WAYgameState', game.solution.id);
+    // Game objektua sinkronizatu
+    game.guesses = state.guesses;
+
     function leagueToFlag(leagueId) {
         let map = {
             564: "es1",
-            8:   "en1",
-            82:  "de1",
+            8: "en1",
+            82: "de1",
             384: "it1",
             301: "fr1"
         };
@@ -57,12 +63,66 @@ export function setupRows(game) {
         return (jokalariMisteriotsua[theKey] === theValue) ? "correct" : "incorrect";
     }
 
+    // ⭐ M4: UNBLUR FUNTZIOA TXERTATUA [cite: 499]
+    function unblur(outcome) {
+        return new Promise( (resolve, reject) =>  {
+            setTimeout(() => {
+                document.getElementById("mistery").classList.remove("hue-rotate-180", "blur")
+                document.getElementById("combobox").remove()
+                let color, text
+                if (outcome=='success'){
+                    color =  "bg-blue-500"
+                    text = "Awesome"
+                } else {
+                    color =  "bg-rose-500"
+                    text = "The player was " + game.solution.name
+                }
+                document.getElementById("picbox").innerHTML += `<div class="animate-pulse fixed z-20 top-14 left-1/2 transform -translate-x-1/2 max-w-sm shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden ${color} text-white"><div class="p-4"><p class="text-sm text-center font-medium">${text}</p></div></div>`
+                resolve();
+            }, "2000")
+        })
+    }
+
+    // ⭐ M4: success eta gameOver funtzioak unblur erabiltzeko [cite: 500, 501]
+    function success() {
+        unblur('success');
+    }
+
+    function gameOver() {
+        unblur('gameOver');
+    }
+
+    // ⭐ M4: resetInput eguneratua placeholder-a aldatzeko
+    function resetInput() {
+        let input = document.getElementById("myInput");
+        if (!input) return;
+
+        input.value = "";
+
+        // "Guess X of 8" kalkulatu
+        let nextGuess = game.guesses.length + 1;
+        if(nextGuess <= 8) {
+            input.placeholder = "Guess " + nextGuess + " of 8";
+        } else {
+            input.placeholder = "Game Over"; // Edo hutsik utzi
+        }
+
+        input.focus();
+    }
+
+    // ⭐ M4: gameEnded
+    function gameEnded(lastGuess) {
+        if (lastGuess === game.solution.id) return true;
+        if (game.guesses.length >= 8) return true;
+        return false;
+    }
+
     function setContent(guess) {
         let age = getAge(guess.birthdate);
         let ageStatus = check("birthdate", guess.birthdate);
         let ageIcon =
             ageStatus === "higher" ? higher :
-                ageStatus === "lower"  ? lower  : "";
+                ageStatus === "lower" ? lower : "";
 
         return [
             `<img src="https://playfootball.games/media/nations/${guess.nationality.toLowerCase()}.svg" style="width: 60%;">`,
@@ -72,7 +132,6 @@ export function setupRows(game) {
             `${age}${ageIcon}`
         ];
     }
-
 
     function showContent(content, guess) {
         let fragments = "";
@@ -107,12 +166,42 @@ export function setupRows(game) {
         document.getElementById('players').prepend(stringToHTML(child));
     }
 
+    // Hasieran inputa prestatu
+    resetInput();
+
     // Itzuliko den funtzioa (main.js-ko addRow)
     return function addRow(playerId) {
+
         let guess = getPlayer(game, playerId);
         if (!guess) return;
 
         let content = setContent(guess);
-        showContent(content, guess);
+
+        // ⭐ M4 — Estatistikak gordetzen dira
+        // Ziurtatu ez dugula bikoizten (updateState-k ere gehitzen du batzuetan inplementazioaren arabera,
+        // baina hemen seguru jokatzeko arraya eta localStorage sinkronizatzen dira)
+        if(!game.guesses.includes(playerId)){
+            game.guesses.push(playerId);
+        }
+        updateState(playerId);
+
+        // Inputa garbitu eta placeholder eguneratu
+        resetInput();
+
+        if (gameEnded(playerId)) {
+            // updateStats(game.guesses.length);
+
+            if (playerId === game.solution.id) {
+                success();
+            }
+
+            if (game.guesses.length >= 8) {
+                gameOver();
+            }
+        }
+
+
+        showContent(content, guess)
+
     };
 }
