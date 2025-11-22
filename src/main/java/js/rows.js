@@ -1,5 +1,9 @@
 import { folder, leftArrow, higher, lower, stringToHTML } from "./fragments.js";
-import { initState } from "./stats.js";
+
+// rows.js fitxategiaren hasieran:
+
+import { initState, updateStats } from './stats.js'; // <--- updateStats GEHITU HEMEN
+import { stats, headless, toggle } from './fragments.js';
 
 const delay = 350;
 const attribs = ['nationality', 'leagueId', 'teamId', 'position', 'birthdate'];
@@ -83,13 +87,33 @@ export function setupRows(game) {
         })
     }
 
+    function showStats(timeout) {
+        return new Promise( (resolve, reject) =>  {
+            setTimeout(() => {
+                document.body.appendChild(stringToHTML(headless(stats())));
+                document.getElementById("showHide").onclick = toggle;
+                bindClose();
+                resolve();
+            }, timeout)
+        })
+    }
+
+    function bindClose() {
+        document.getElementById("closedialog").onclick = function () {
+            document.body.removeChild(document.body.lastChild)
+            document.getElementById("mistery").classList.remove("hue-rotate-180", "blur")
+        }
+    }
+
     // ⭐ M4: success eta gameOver funtzioak unblur erabiltzeko [cite: 500, 501]
     function success() {
         unblur('success');
+        showStats(2500);
     }
 
     function gameOver() {
         unblur('gameOver');
+        showStats(2500);
     }
 
     // ⭐ M4: resetInput eguneratua placeholder-a aldatzeko
@@ -169,6 +193,29 @@ export function setupRows(game) {
     // Hasieran inputa prestatu
     resetInput();
 
+    let tick = function () {
+        let now = new Date();
+        let tomorrow = new Date(now);
+        tomorrow.setHours(24, 0, 0, 0); // Hurrengo gauerdia
+
+        let diff = tomorrow - now; // Diferentzia milisegundotan
+
+        // Kalkulatu orduak, minutuak eta segunduak
+        let hours = Math.floor(diff / (1000 * 60 * 60));
+        let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        let seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        // Formateatu (09:05:01 itxura izateko)
+        let h = hours.toString().padStart(2, "0");
+        let m = minutes.toString().padStart(2, "0");
+        let s = seconds.toString().padStart(2, "0");
+
+        // HTML-a eguneratu
+        let element = document.getElementById("nextPlayer");
+        if (element) {
+            element.innerHTML = `${h}:${m}:${s}`;
+        }
+    };
     // Itzuliko den funtzioa (main.js-ko addRow)
     return function addRow(playerId) {
 
@@ -189,7 +236,7 @@ export function setupRows(game) {
         resetInput();
 
         if (gameEnded(playerId)) {
-            // updateStats(game.guesses.length);
+             updateStats(game.guesses.length);
 
             if (playerId === game.solution.id) {
                 success();
@@ -198,6 +245,8 @@ export function setupRows(game) {
             if (game.guesses.length >= 8) {
                 gameOver();
             }
+            let interval = setInterval(tick, 1000);
+
         }
 
 
