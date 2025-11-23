@@ -23,6 +23,16 @@ let game = {
     leagues: []
 };
 
+function loadPreviousGame(solutionId) {
+    let stored = localStorage.getItem("WAYgameState");
+    if (!stored) return null;
+
+    let state = JSON.parse(stored);
+    if (state.solution !== solutionId) return null;
+
+    return state.guesses;
+}
+
 function getSolution(players, solutionArray, difference_In_Days) {
     const index = (difference_In_Days - 1) % solutionArray.length;
     const gaurkoJokalariId = solutionArray[index];
@@ -43,15 +53,19 @@ Promise.all([
     game.players = players;
     game.solution = getSolution(players, solutionArray, difference_In_Days);
 
-    if (game.solution) {
+    if (!game.solution) return;
         document.getElementById("mistery").src =
             `https://playfootball.games/media/players/${game.solution.id % 32}/${game.solution.id}.png`;
 
+        const previous = loadPreviousGame(game.solution.id);
         // addRow funtzioa sortu bakarrik jokalaria existitzen bada
         window.addRow = setupRows(game);
         const input = document.getElementById("myInput");
         autocomplete(input, game);
-    }
+        
+        if (previous && previous.length > 0) {
+            previous.forEach(id => window.addRow(id)); 
+        }
 });
 
 // input event

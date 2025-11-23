@@ -26,7 +26,7 @@ export function setupRows(game) {
     let [state, updateState] = initState('WAYgameState', game.solution.id);
     // Game objektua sinkronizatu
     game.guesses = state.guesses;
-
+    
     function leagueToFlag(leagueId) {
         let map = {
             564: "es1",
@@ -72,7 +72,8 @@ export function setupRows(game) {
         return new Promise( (resolve, reject) =>  {
             setTimeout(() => {
                 document.getElementById("mistery").classList.remove("hue-rotate-180", "blur")
-                document.getElementById("combobox").remove()
+                const combo = document.getElementById("combobox");
+                if (combo) combo.remove();
                 let color, text
                 if (outcome=='success'){
                     color =  "bg-blue-500"
@@ -227,11 +228,10 @@ export function setupRows(game) {
         // ⭐ M4 — Estatistikak gordetzen dira
         // Ziurtatu ez dugula bikoizten (updateState-k ere gehitzen du batzuetan inplementazioaren arabera,
         // baina hemen seguru jokatzeko arraya eta localStorage sinkronizatzen dira)
-        if(!game.guesses.includes(playerId)){
-           // game.guesses.push(playerId);
+        
+        if (!game.guesses.includes(playerId)) {
             updateState(playerId);
         }
-
 
         // Inputa garbitu eta placeholder eguneratu
         resetInput();
