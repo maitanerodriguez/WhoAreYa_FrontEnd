@@ -228,9 +228,10 @@ export function setupRows(game) {
         // Ziurtatu ez dugula bikoizten (updateState-k ere gehitzen du batzuetan inplementazioaren arabera,
         // baina hemen seguru jokatzeko arraya eta localStorage sinkronizatzen dira)
         if(!game.guesses.includes(playerId)){
-            game.guesses.push(playerId);
+           // game.guesses.push(playerId);
+            updateState(playerId);
         }
-        updateState(playerId);
+
 
         // Inputa garbitu eta placeholder eguneratu
         resetInput();
